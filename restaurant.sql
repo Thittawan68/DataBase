@@ -165,3 +165,6 @@ BEGIN
     VALUES (_restaurant_id, _location_type, _location_name);
 END;
 $$ LANGUAGE plpgsql;
+
+ALTER TABLE package 
+ADD COLUMN package_name VARCHAR(50) DEFAULT NULL;

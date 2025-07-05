@@ -36,3 +36,34 @@ CREATE TABLE time_Slot (
     package_ID INT NOT NULL,
     FOREIGN KEY (package_ID) REFERENCES Package(package_id)
 );
+
+CREATE TABLE PICTURE (
+    picture_id SERIAL PRIMARY KEY,
+    restaurant_id INT NOT NULL,
+    main_picture BOOLEAN NOT NULL DEFAULT FALSE,
+    picture_url VARCHAR(255) NOT NULL,
+    FOREIGN KEY (restaurant_id) REFERENCES restaurant_information(restaurant_id)
+);
+
+-- Function to check main picture limit
+CREATE OR REPLACE FUNCTION check_main_picture_limit()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.main_picture = TRUE THEN
+        IF (SELECT COUNT(*) FROM PICTURE 
+            WHERE restaurant_id = NEW.restaurant_id 
+            AND main_picture = TRUE 
+            AND picture_id != COALESCE(NEW.picture_id, -1)) >= 5 THEN
+            RAISE EXCEPTION 'Cannot have more than 5 main pictures per restaurant';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger to enforce main picture limit
+CREATE TRIGGER trigger_check_main_picture_limit
+    BEFORE INSERT OR UPDATE ON PICTURE
+    FOR EACH ROW
+    EXECUTE FUNCTION check_main_picture_limit();
+

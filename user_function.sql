@@ -10,10 +10,6 @@ CREATE OR REPLACE FUNCTION insert_user_info(
 )
     RETURNS VOID AS $$
 BEGIN
-    IF p_name IS NOT NULL AND EXISTS (SELECT 1 FROM user_info WHERE name = p_name) THEN
-        RAISE EXCEPTION 'Name % already exists.', p_name;
-    END IF;
-
     INSERT INTO user_info (
         name, hungry_point, email_login, email_contact,
         facebook, phone_number, date_of_birth, tier
