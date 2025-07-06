@@ -43,15 +43,18 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION insert_voucher(
-    p_retrieve_date TIMESTAMP,
+    p_value INT,
     p_description TEXT
 )
     RETURNS VOID AS $$
 BEGIN
-    INSERT INTO voucher (retrieve_date, voucher_description)
-    VALUES ( p_retrieve_date, p_description);
+    INSERT INTO voucher (value, voucher_description)
+    VALUES (p_value ,p_description);
 END;
 $$ LANGUAGE plpgsql;
+
+ALTER TABLE voucher
+    ADD COLUMN value INT DEFAULT NULL;
 
 CREATE OR REPLACE FUNCTION insert_favorite(
     p_user_id INT,
@@ -90,21 +93,45 @@ BEGIN
         RAISE EXCEPTION 'Restaurant ID % does not exist.', p_restaurant_id;
     END IF;
 
-    INSERT INTO promo_code ( value, restaurant_id)
+    INSERT INTO promo_code (value, restaurant_id)
     VALUES (p_value, p_restaurant_id);
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION insert_gift_card(
-    p_value INT,
-    p_number_hold INT
+    p_value INT
 )
     RETURNS VOID AS $$
 BEGIN
-    INSERT INTO gift_card (value, number_hold)
+    INSERT INTO gift_card (value)
     VALUES (p_value, p_number_hold);
 END;
 $$ LANGUAGE plpgsql;
+
+
+-- Function to insert or update user promotion with quantity tracking
+CREATE OR REPLACE FUNCTION insert_user_promotion(
+    p_user_id INT,
+    p_promo_card_type VARCHAR,
+    p_promo_card_id INT
+)
+RETURNS VOID AS $$
+BEGIN
+    -- Validate user exists
+    IF NOT EXISTS (SELECT 1 FROM user_info WHERE user_id = p_user_id) THEN
+        RAISE EXCEPTION 'User ID % does not exist.', p_user_id;
+    END IF;
+    
+    -- Insert new row with quantity 1 or update existing quantity by adding 1
+    INSERT INTO user_promotion (user_id, promo_card_type, promo_card_id, quantity)
+    VALUES (p_user_id, p_promo_card_type, p_promo_card_id, 1)
+    ON CONFLICT (user_id, promo_card_type, promo_card_id) 
+    DO UPDATE SET 
+        quantity = user_promotion.quantity + 1;
+END;
+$$ LANGUAGE plpgsql;
+
+
 
 -- SELECT insert_payment_method(1001, 1234567890123456, 'Credit', 'Visa');
 -- SELECT insert_user_info('John Doe', 100, 'haha@gmail.com');
