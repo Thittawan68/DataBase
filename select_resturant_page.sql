@@ -21,6 +21,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
 CREATE OR REPLACE FUNCTION get_resturant_picture(
     _restaurant_id INT
 )
@@ -61,6 +62,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
 CREATE OR REPLACE FUNCTION get_restaurant_info_with_similar_count(
     _restaurant_id INT
 )
@@ -97,7 +99,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-
 --package functions
 CREATE OR REPLACE FUNCTION get_restaurant_packages(
     _restaurant_id INT
@@ -131,8 +132,6 @@ BEGIN
     ORDER BY p.package_id;
 END;
 $$ LANGUAGE plpgsql;
-
-
 
 
 

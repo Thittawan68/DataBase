@@ -6,17 +6,28 @@ CREATE OR REPLACE FUNCTION insert_user_info(
     p_facebook VARCHAR DEFAULT NULL,
     p_phone_number INT DEFAULT NULL,
     p_date_of_birth DATE DEFAULT NULL,
-    p_tier VARCHAR DEFAULT 'Red'
+    p_tier VARCHAR DEFAULT 'Red',
+    p_password VARCHAR DEFAULT NULL
 )
     RETURNS VOID AS $$
+DECLARE
+    hashed_password VARCHAR(255);
 BEGIN
+    -- Hash the password if provided (for email/password users)
+    IF p_password IS NOT NULL THEN
+        -- Using MD5 for demonstration - in production, use bcrypt or similar
+        hashed_password := MD5(p_password || 'salt_string_2024');
+    ELSE
+        hashed_password := NULL;
+    END IF;
+
     INSERT INTO user_info (
         name, hungry_point, email_login, email_contact,
-        facebook, phone_number, date_of_birth, tier
+        facebook, phone_number, date_of_birth, tier, email_pass
     )
     VALUES (
        p_name, p_hungry_point, p_email_login, p_email_contact,
-       p_facebook, p_phone_number, p_date_of_birth, p_tier
+       p_facebook, p_phone_number, p_date_of_birth, p_tier, hashed_password
    );
 END;
 $$ LANGUAGE plpgsql;
