@@ -7,7 +7,9 @@ CREATE OR REPLACE FUNCTION insert_restaurant_information(
     _restaurant_name VARCHAR,
     _dining_style VARCHAR,
     _country VARCHAR,
-    _about_us TEXT
+    _about_us TEXT,
+    _join_date DATE,
+    _main_cuisine VARCHAR
 )
     RETURNS INT AS $$
 DECLARE
@@ -27,10 +29,10 @@ BEGIN
 
     INSERT INTO Restaurant_Information (
         open_time, close_time, location, email, contact_number,
-        restaurant_name, dining_style, country, about_us
+        restaurant_name, dining_style, country, about_us, join_date, main_cuisine
     ) VALUES (
                  _open_time, _close_time, _location, _email, _contact_number,
-                 _restaurant_name, _dining_style, _country, _about_us
+                 _restaurant_name, _dining_style, _country, _about_us, _join_date, _main_cuisine
              )
     RETURNING restaurant_id INTO _id;
 

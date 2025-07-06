@@ -67,3 +67,31 @@ CREATE TRIGGER trigger_check_main_picture_limit
     FOR EACH ROW
     EXECUTE FUNCTION check_main_picture_limit();
 
+-- Review picture table
+CREATE TABLE review_picture (
+    picture_id SERIAL PRIMARY KEY,
+    reservation_id INT NOT NULL,
+    picture_url VARCHAR(255) NOT NULL,
+    FOREIGN KEY (reservation_id) REFERENCES table_reservation(table_reservation_id)
+);
+
+-- Function to check review picture limit
+CREATE OR REPLACE FUNCTION check_review_picture_limit()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (SELECT COUNT(*) FROM review_picture 
+        WHERE reservation_id = NEW.reservation_id) >= 5 THEN
+        RAISE EXCEPTION 'Cannot have more than 5 pictures per reservation';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger to enforce review picture limit
+CREATE TRIGGER trigger_check_review_picture_limit
+    BEFORE INSERT ON review_picture
+    FOR EACH ROW
+    EXECUTE FUNCTION check_review_picture_limit();
+
+ALTER TABLE restaurant_information
+ADD COLUMN main_cuisine VARCHAR(50) DEFAULT NULL;
